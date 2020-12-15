@@ -2,7 +2,8 @@
 	import { onMount } from "svelte";
 	import * as faceLandmarksDetection from "@tensorflow-models/face-landmarks-detection";
 	//import "@tensorflow/tfjs-backend-webgl";
-	import "@tensorflow/tfjs-backend-cpu";
+	//import "@tensorflow/tfjs-backend-cpu";
+	import * as tf from "@tensorflow/tfjs";
 
 	let videoElement;
 
@@ -29,7 +30,7 @@
 		const net =  await faceLandmarksDetection.load(faceLandmarksDetection.SupportedPackages.mediapipeFacemesh);
 		setInterval(() => {
 			detectFace(net)
-		}, 100);
+		}, 10);
 	};
 
 	const detectFace = async(net) => {
