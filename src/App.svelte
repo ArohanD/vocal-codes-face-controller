@@ -1,7 +1,10 @@
 <script>
 	import { onMount } from "svelte";
+	import * as faceLandmarksDetection from "@tensorflow-models/face-landmarks-detection";
+	//import "@tensorflow/tfjs-backend-webgl";
+	import "@tensorflow/tfjs-backend-cpu";
 
-	let videoEl;
+	let videoElement;
 
 	onMount(async () => {
 		try {
@@ -11,12 +14,31 @@
 				facingMode: "user",
 			});
 
-			videoEl.srcObject = stream;
-			videoEl.play();
+			videoElement.srcObject = stream;
+			await videoElement.play();
+
+			console.log(videoElement)
+			runFaceDetector()
+
 		} catch (e) {
 			console.error(e);
 		}
 	});
+
+	const runFaceDetector = async () => {
+		const net =  await faceLandmarksDetection.load(faceLandmarksDetection.SupportedPackages.mediapipeFacemesh);
+		setInterval(() => {
+			detectFace(net)
+		}, 100);
+	};
+
+	const detectFace = async(net) => {
+		
+		const face = await net.estimateFaces({
+			input: videoElement
+		})
+		console.log(face)
+	}
 </script>
 
 <style>
@@ -33,4 +55,5 @@
 	}
 </style>
 
-<main><video bind:this={videoEl} width="600" height="480" /></main>
+<!-- svelte-ignore a11y-media-has-caption -->
+<main><video bind:this={videoElement} width="600" height="480" /></main>
