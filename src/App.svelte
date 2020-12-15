@@ -38,7 +38,8 @@
 		const face = await net.estimateFaces({
 			input: videoElement
 		})
-		console.log(face)
+		console.log(face[0].annotations)
+		//console.log(face[0].annotations.noseTip.toString())
 	}
 </script>
 
