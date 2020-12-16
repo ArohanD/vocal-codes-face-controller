@@ -1,5 +1,4 @@
 const calculateMode = (nums) => {
-    console.log(nums)
     if(!nums || nums.length === 0) return 0;
 
     const dictionary = {}
@@ -10,7 +9,6 @@ const calculateMode = (nums) => {
             dictionary[num] = 1
         }
     });
-    console.log(dictionary)
     return +Object.keys(dictionary)
             .map(key => [key, dictionary[key]])
             .sort((a, b) => b[1] - a[1])[0][0]

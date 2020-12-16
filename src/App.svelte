@@ -6,6 +6,11 @@
 	import * as tf from "@tensorflow/tfjs";
 	import calculateMode from "./utils/calculateMode";
 
+	let sensitivity = 30;
+	let pointerLeft = 50;
+	let pointerTop = 50;
+	let pointerSpeed = 2;
+
 	let videoElement;
 	let pointerCalibrated;
 	let calibrationSet = [];
@@ -53,7 +58,7 @@
 		});
 		if(face[0]){
 			const landmarkArray = face[0].annotations.noseTip[0];
-			console.log(landmarkArray);
+			//console.log(landmarkArray);
 			//console.log(face[0].annotations.noseTip.toString())
 			position = {
 				x: landmarkArray[0],
@@ -66,14 +71,12 @@
 	};
 
 	$: {
-		if (calibrationSet.length >= 100) {
+		if (!pointerCalibrated && calibrationSet.length === 100) {
 			console.log("Calculating Baseline...");
-			console.log(calibrationSet)
 			const xPositions = [],
 				yPositions = [],
 				zPositions = [];
 			calibrationSet.forEach((positionArray) => {
-				console.log(positionArray)
 				Math.round(xPositions.push(positionArray.x))
 				Math.round(yPositions.push(positionArray.y))
 				Math.round(zPositions.push(positionArray.z))
@@ -83,9 +86,32 @@
 				y: calculateMode(yPositions),
 				z: calculateMode(zPositions),
 			};
-			console.log('-----------------BASELINE', baseline)
-
 			pointerCalibrated = true;
+		}
+	}
+
+	$: if(pointerCalibrated) {
+		const xChange = position.x - baseline.x;
+		const yChange = position.y - baseline.y;
+
+		switch (true) {
+			case (xChange > 0 && Math.abs(xChange) > sensitivity):
+				pointerLeft -= 2;
+				break;
+			case (xChange < 0 && Math.abs(xChange) > sensitivity):
+				pointerLeft += 2;
+				break;
+			default:
+		}
+
+		switch (true) {
+			case (yChange > 0 && Math.abs(yChange) > sensitivity):
+				pointerTop += 2;
+				break;
+			case (yChange < 0 && Math.abs(yChange) > sensitivity):
+				pointerTop -= 2;
+				break;
+			default:
 		}
 	}
 </script>
@@ -119,12 +145,13 @@
 <!-- svelte-ignore a11y-media-has-caption -->
 <main>
 	<video bind:this={videoElement} width="600" height="480" />
-	<div id="pointer">👃🏾</div>
+	<div id="pointer" style={`top: ${pointerTop}%; left: ${pointerLeft}%`} >👃🏾</div>
 	<div id="position-tracker">
 		{#if !pointerCalibrated}
 			{`Calibrating...`}
 		{:else}
-			{`x:${Math.round(position.x)}, y:${Math.round(position.y)}, z:${Math.round(position.z)}`}
+			<p>{`position: x:${Math.round(position.x)}, y:${Math.round(position.y)}, z:${Math.round(position.z)}`}</p>
+			<p>{`baseline: x:${Math.round(baseline.x)}, y:${Math.round(baseline.y)}, z:${Math.round(baseline.z)}`}</p>
 		{/if}
 	</div>
 </main>
