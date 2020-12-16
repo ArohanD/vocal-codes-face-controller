@@ -5,11 +5,28 @@
 	//import "@tensorflow/tfjs-backend-cpu";
 	import * as tf from "@tensorflow/tfjs";
 	import calculateMode from "./utils/calculateMode";
+	import { spring } from 'svelte/motion';
 
 	let sensitivity = 30;
 	let pointerLeft = 50;
 	let pointerTop = 50;
 	let pointerSpeed = 1.5;
+
+	const coords = spring({ x: 0, y: 0 }, {
+
+	});
+
+	function handlePanMove(x, y) {
+
+		console.log($coords.x, $coords.y)
+		//if(-100 <= $coords.x && $coords.x <= 100 && -100 <= $coords.y && $coords.y <= 100){
+			coords.update($coords => ({
+				x: $coords.x + x,
+				y: $coords.y + y
+			}));
+		//}
+
+	}
 
 	let videoElement;
 	let pointerCalibrated;
@@ -94,25 +111,33 @@
 		const xChange = position.x - baseline.x;
 		const yChange = position.y - baseline.y;
 
+		let xMove = 0;
+		let yMove = 0;
 		switch (true) {
 			case (xChange > 0 && Math.abs(xChange) > sensitivity):
-				if(pointerLeft - pointerSpeed >= 0) pointerLeft -= pointerSpeed;
+				//if(pointerLeft - pointerSpeed >= 0) pointerLeft -= pointerSpeed;
+				xMove = -30
 				break;
 			case (xChange < 0 && Math.abs(xChange) > sensitivity):
-				if(pointerLeft + pointerSpeed <= 100) pointerLeft += pointerSpeed;
+				//if(pointerLeft + pointerSpeed <= 100) pointerLeft += pointerSpeed;
+				xMove = 30
 				break;
 			default:
 		}
 
 		switch (true) {
 			case (yChange > 0 && Math.abs(yChange) > sensitivity):
-				if(pointerTop + pointerSpeed <= 100) pointerTop += pointerSpeed;
+				//if(pointerTop + pointerSpeed <= 100) pointerTop += pointerSpeed;
+				yMove = 30
 				break;
 			case (yChange < 0 && Math.abs(yChange) > sensitivity):
-				if(pointerTop - pointerSpeed >= 0) pointerTop -= pointerSpeed;
+				//if(pointerTop - pointerSpeed >= 0) pointerTop -= pointerSpeed;
+				yMove = -30
 				break;
 			default:
 		}
+		console.log(xMove, yMove)
+		handlePanMove(xMove, yMove)
 	}
 </script>
 
@@ -142,7 +167,11 @@
 <!-- svelte-ignore a11y-media-has-caption -->
 <main>
 	<video bind:this={videoElement} width="600" height="480" />
-	<div id="pointer" style={`top: ${pointerTop}%; left: ${pointerLeft}%`} >👃🏾</div>
+	<div 
+		id="pointer" 
+		
+		style="transform: translate({$coords.x}px,{$coords.y}px)" 
+	>👃🏾</div>
 	<div id="position-tracker">
 		{#if !pointerCalibrated}
 			<h2>Stay still!</h2>
