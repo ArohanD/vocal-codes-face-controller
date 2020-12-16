@@ -9,7 +9,7 @@
 	let sensitivity = 30;
 	let pointerLeft = 50;
 	let pointerTop = 50;
-	let pointerSpeed = 2;
+	let pointerSpeed = 1.5;
 
 	let videoElement;
 	let pointerCalibrated;
@@ -96,20 +96,20 @@
 
 		switch (true) {
 			case (xChange > 0 && Math.abs(xChange) > sensitivity):
-				pointerLeft -= 2;
+				if(pointerLeft - pointerSpeed >= 0) pointerLeft -= pointerSpeed;
 				break;
 			case (xChange < 0 && Math.abs(xChange) > sensitivity):
-				pointerLeft += 2;
+				if(pointerLeft + pointerSpeed <= 100) pointerLeft += pointerSpeed;
 				break;
 			default:
 		}
 
 		switch (true) {
 			case (yChange > 0 && Math.abs(yChange) > sensitivity):
-				pointerTop += 2;
+				if(pointerTop + pointerSpeed <= 100) pointerTop += pointerSpeed;
 				break;
 			case (yChange < 0 && Math.abs(yChange) > sensitivity):
-				pointerTop -= 2;
+				if(pointerTop - pointerSpeed >= 0) pointerTop -= pointerSpeed;
 				break;
 			default:
 		}
@@ -119,26 +119,23 @@
 <style>
 	main {
 		text-align: center;
-		padding: 1em;
-
-		margin: 0 auto;
 	}
-
 	video {
 		-webkit-transform: scaleX(-1);
 		transform: scaleX(-1);
+
+		
+		/* For desktop styles later:
+		position: absolute;
+		bottom: 0;
+		right: 0; */
 	}
 
 	#pointer {
 		position: absolute;
 		top: 50%;
 		left: 50%;
-	}
-
-	#posiiton-tracker {
-		position: absolute;
-		bottom: 10%;
-		left: 50%;
+		font-size: 2em;
 	}
 </style>
 
@@ -148,7 +145,8 @@
 	<div id="pointer" style={`top: ${pointerTop}%; left: ${pointerLeft}%`} >👃🏾</div>
 	<div id="position-tracker">
 		{#if !pointerCalibrated}
-			{`Calibrating...`}
+			<h2>Stay still!</h2>
+			<p>{`Calibrating...  ${calibrationSet.length}%`}</p>
 		{:else}
 			<p>{`position: x:${Math.round(position.x)}, y:${Math.round(position.y)}, z:${Math.round(position.z)}`}</p>
 			<p>{`baseline: x:${Math.round(baseline.x)}, y:${Math.round(baseline.y)}, z:${Math.round(baseline.z)}`}</p>
